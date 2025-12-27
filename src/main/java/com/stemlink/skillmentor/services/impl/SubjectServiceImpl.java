@@ -4,15 +4,18 @@ import com.stemlink.skillmentor.entities.Mentor;
 import com.stemlink.skillmentor.entities.Subject;
 import com.stemlink.skillmentor.respositories.MentorRepository;
 import com.stemlink.skillmentor.respositories.SubjectRepository;
+import com.stemlink.skillmentor.services.SubjectService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SubjectService {
+public class SubjectServiceImpl implements SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final MentorRepository mentorRepository;
