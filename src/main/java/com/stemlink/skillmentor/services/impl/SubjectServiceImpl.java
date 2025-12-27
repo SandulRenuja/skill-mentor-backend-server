@@ -37,6 +37,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     public Subject updateSubjectById(Long id, Subject updatedSubject){
         Subject subject = subjectRepository.findById(id).get();
+        // TODO: use model mapper
         subject.setSubjectName(updatedSubject.getSubjectName());
         subject.setDescription(updatedSubject.getDescription());
         return subjectRepository.save(subject);

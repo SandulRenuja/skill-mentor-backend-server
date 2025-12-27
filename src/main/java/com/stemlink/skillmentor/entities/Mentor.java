@@ -61,7 +61,6 @@ public class Mentor {
     private List<Subject> subjects;
 
     @OneToMany(mappedBy = "mentor")
-    @JsonIgnore
     private List<Session> sessions;
 
 
