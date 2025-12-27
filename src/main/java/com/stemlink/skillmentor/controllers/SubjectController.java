@@ -2,7 +2,7 @@ package com.stemlink.skillmentor.controllers;
 
 import com.stemlink.skillmentor.dto.SubjectDTO;
 import com.stemlink.skillmentor.entities.Subject;
-import com.stemlink.skillmentor.services.SubjectService;
+import com.stemlink.skillmentor.services.impl.SubjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

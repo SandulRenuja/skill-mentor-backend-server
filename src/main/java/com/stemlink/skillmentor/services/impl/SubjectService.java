@@ -1,4 +1,4 @@
-package com.stemlink.skillmentor.services;
+package com.stemlink.skillmentor.services.impl;
 
 import com.stemlink.skillmentor.entities.Mentor;
 import com.stemlink.skillmentor.entities.Subject;
