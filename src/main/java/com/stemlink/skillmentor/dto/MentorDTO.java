@@ -8,18 +8,6 @@ import lombok.Data;
 @Data
 public class MentorDTO {
 
-    @NotNull(message = "First name cannot be null")
-    @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
-    private String firstName;
-
-    @NotNull(message = "Last name cannot be null")
-    @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
-    private String lastName;
-
-    @NotNull(message = "Email cannot be null")
-    @Email(message = "Email should be valid")
-    private String email;
-
     @Size(max = 20, message = "Phone number must not exceed 20 characters")
     private String phoneNumber;
 

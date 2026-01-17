@@ -37,6 +37,21 @@ public class SkillMentorJwtValidator implements TokenValidator{
     }
 
     @Override
+    public String extractFirstName(String token) {
+        return null;
+    }
+
+    @Override
+    public String extractLastName(String token) {
+        return null;
+    }
+
+    @Override
+    public String extractEmail(String token) {
+        return null;
+    }
+
+    @Override
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
