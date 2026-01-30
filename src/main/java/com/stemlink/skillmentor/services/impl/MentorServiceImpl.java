@@ -27,11 +27,12 @@ public class MentorServiceImpl implements MentorService {
     public Mentor createNewMentor(Mentor mentor) {
         try {
             return mentorRepository.save(mentor);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Data integrity violation while creating mentor: {}", e.getMessage());
+            throw new SkillMentorException("Mentor with this email already exists", HttpStatus.CONFLICT);
         } catch (Exception exception) {
             log.error("Failed to create new mentor", exception);
-            // What, When, Where, Why
-            //System.err.println("Error creating mentor" + exception.getMessage());
-            throw new SkillMentorException("Failed to create new mentor", HttpStatus.CONFLICT);
+            throw new SkillMentorException("Failed to create new mentor", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
