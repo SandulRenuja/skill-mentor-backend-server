@@ -17,19 +17,23 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.stemlink.skillmentor.constants.UserRoles.*;
+
 @RestController
 @RequestMapping(path = "/api/v1/mentors")
 @RequiredArgsConstructor
 @Validated
+@PreAuthorize("isAuthenticated()")
 public class MentorController extends AbstractController {
 
     private final MentorService mentorService;
     private final ModelMapper modelMapper;
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Page<Mentor>> getAllMentors(Pageable pageable) {
-        Page<Mentor> mentors = mentorService.getAllMentors(pageable);
+    public ResponseEntity<Page<Mentor>> getAllMentors(
+            @RequestParam(required = false) String name,
+            Pageable pageable) {
+        Page<Mentor> mentors = mentorService.getAllMentors(name, pageable);
         return sendOkResponse(mentors);
     }
 
@@ -40,7 +44,7 @@ public class MentorController extends AbstractController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
     public ResponseEntity<Mentor> createMentor(@Valid @RequestBody MentorDTO mentorDTO, Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
@@ -56,7 +60,7 @@ public class MentorController extends AbstractController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "', '" + ROLE_MENTOR + "')")
     public ResponseEntity<Mentor> updateMentor(@PathVariable Long id, @Valid @RequestBody MentorDTO updatedMentorDTO) {
         Mentor mentor = modelMapper.map(updatedMentorDTO, Mentor.class);
         Mentor updatedMentor = mentorService.updateMentorById(id, mentor);
@@ -65,7 +69,7 @@ public class MentorController extends AbstractController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    @PreAuthorize("hasAnyRole('" + ROLE_ADMIN + "')")
     public ResponseEntity<Mentor> deleteMentor(@PathVariable Long id) {
         mentorService.deleteMentor(id);
         return sendNoContentResponse();

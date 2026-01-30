@@ -35,10 +35,13 @@ public class MentorServiceImpl implements MentorService {
         }
     }
 
-    @Cacheable(value = "mentors", key = "#pageable.pageNumber + '_' + #pageable.pageSize")
-    public Page<Mentor> getAllMentors(Pageable pageable) {
+    @Cacheable(value = "mentors", key = "(#name ?: '') + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<Mentor> getAllMentors(String name, Pageable pageable) {
         try {
-            log.debug("getting mentors");
+            log.debug("getting mentors with name: {}", name);
+            if (name != null && !name.isEmpty()) {
+                return mentorRepository.findByName(name, pageable);
+            }
             return mentorRepository.findAll(pageable); // SELECT * FROM mentor
         } catch (Exception exception) {
             log.error("Failed to get all mentors", exception);

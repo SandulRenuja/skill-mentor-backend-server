@@ -6,6 +6,7 @@ import com.stemlink.skillmentor.services.SubjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v1/subjects")
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class SubjectController {
 
     private final ModelMapper modelMapper;
