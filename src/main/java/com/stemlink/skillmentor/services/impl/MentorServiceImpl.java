@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,18 +28,22 @@ public class MentorServiceImpl implements MentorService {
     public Mentor createNewMentor(Mentor mentor) {
         try {
             return mentorRepository.save(mentor);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Data integrity violation while creating mentor: {}", e.getMessage());
+            throw new SkillMentorException("Mentor with this email already exists", HttpStatus.CONFLICT);
         } catch (Exception exception) {
             log.error("Failed to create new mentor", exception);
-            // What, When, Where, Why
-            //System.err.println("Error creating mentor" + exception.getMessage());
-            throw new SkillMentorException("Failed to create new mentor", HttpStatus.CONFLICT);
+            throw new SkillMentorException("Failed to create new mentor", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @Cacheable(value = "mentors", key = "#pageable.pageNumber + '_' + #pageable.pageSize")
-    public Page<Mentor> getAllMentors(Pageable pageable) {
+    @Cacheable(value = "mentors", key = "(#name ?: '') + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<Mentor> getAllMentors(String name, Pageable pageable) {
         try {
-            log.debug("getting mentors");
+            log.debug("getting mentors with name: {}", name);
+            if (name != null && !name.isEmpty()) {
+                return mentorRepository.findByName(name, pageable);
+            }
             return mentorRepository.findAll(pageable); // SELECT * FROM mentor
         } catch (Exception exception) {
             log.error("Failed to get all mentors", exception);

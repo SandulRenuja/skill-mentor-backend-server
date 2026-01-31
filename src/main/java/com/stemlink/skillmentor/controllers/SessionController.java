@@ -6,6 +6,7 @@ import com.stemlink.skillmentor.entities.Session;
 import com.stemlink.skillmentor.services.SessionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping(path = "/api/v1/sessions")
 @RequiredArgsConstructor
 @Validated
+@PreAuthorize("isAuthenticated()")
 public class SessionController extends AbstractController{
 
     private final SessionService sessionService;

@@ -3,6 +3,8 @@ package com.stemlink.skillmentor.controllers;
 import com.stemlink.skillmentor.dto.ErrorResponse;
 import com.stemlink.skillmentor.exceptions.SkillMentorException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
