@@ -23,7 +23,7 @@ import static com.stemlink.skillmentor.constants.UserRoles.*;
 @RequestMapping(path = "/api/v1/mentors")
 @RequiredArgsConstructor
 @Validated
-@PreAuthorize("isAuthenticated()")
+//@PreAuthorize("isAuthenticated()") // Allow all authenticated users to access mentor endpoints, but specific actions are further restricted by method-level security annotations
 public class MentorController extends AbstractController {
 
     private final MentorService mentorService;

@@ -24,4 +24,16 @@ public class MentorDTO {
 
     @Size(max = 500, message = "Bio must not exceed 500 characters")
     private String bio;
+
+    // Additional fields required for frontend mentor profile displays
+    private String profileImageUrl;
+
+    private Integer positiveReviews;
+
+    private Integer totalEnrollments;
+
+    private Boolean isCertified;
+
+    @Size(max = 10, message = "Start year must not exceed 10 characters")
+    private String startYear;
 }
