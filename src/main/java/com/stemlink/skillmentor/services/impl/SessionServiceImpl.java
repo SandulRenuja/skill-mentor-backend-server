@@ -42,7 +42,7 @@ public class SessionServiceImpl implements SessionService {
             Student student = studentRepository.findById(sessionDTO.getStudentId()).orElseThrow(
                     () -> new SkillMentorException("Student not found", HttpStatus.NOT_FOUND)
             );
-            Mentor mentor = mentorRepository.findById(sessionDTO.getMentorId()).orElseThrow(
+            Mentor mentor = mentorRepository.findByMentorId(String.valueOf(sessionDTO.getMentorId())).orElseThrow(
                     () -> new SkillMentorException("Mentor not found", HttpStatus.NOT_FOUND)
             );
             Subject subject = subjectRepository.findById(sessionDTO.getSubjectId()).orElseThrow(
@@ -102,7 +102,8 @@ public class SessionServiceImpl implements SessionService {
             session.setStudent(student);
         }
         if (updatedSessionDTO.getMentorId() != null) {
-            Mentor mentor = mentorRepository.findById(updatedSessionDTO.getMentorId()).get();
+            Mentor mentor = mentorRepository.findByMentorId(String.valueOf(updatedSessionDTO.getMentorId()))
+                    .orElseThrow(() -> new SkillMentorException("Mentor not found", HttpStatus.NOT_FOUND));
             session.setMentor(mentor);
         }
         if (updatedSessionDTO.getSubjectId() != null) {
@@ -141,7 +142,7 @@ public class SessionServiceImpl implements SessionService {
     }
 
     public Session enrollSession(UserPrincipal userPrincipal, SessionDTO sessionDTO) {
-        // Find student by email from JWT, or auto-create on first enrollment
+        // Find student by email from JWT, or auto-create user on first enrollment
         Student student = studentRepository.findByEmail(userPrincipal.getEmail())
                 .orElseGet(() -> {
                     Student s = new Student();
@@ -152,8 +153,8 @@ public class SessionServiceImpl implements SessionService {
                     return studentRepository.save(s);
                 });
 
-        Mentor mentor = mentorRepository.findById(sessionDTO.getMentorId())
-                .orElseThrow(() -> new RuntimeException("Mentor not found with id: " + sessionDTO.getMentorId()));
+        Mentor mentor = mentorRepository.findByMentorId(String.valueOf(sessionDTO.getMentorId()))
+                .orElseThrow(() -> new RuntimeException("Mentor not found with mentorId: " + sessionDTO.getMentorId()));
         Subject subject = subjectRepository.findById(sessionDTO.getSubjectId())
                 .orElseThrow(() -> new RuntimeException("Subject not found with id: " + sessionDTO.getSubjectId()));
 

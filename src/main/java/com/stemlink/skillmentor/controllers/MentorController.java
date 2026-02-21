@@ -49,10 +49,18 @@ public class MentorController extends AbstractController {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         Mentor mentor = modelMapper.map(mentorDTO, Mentor.class);
-        mentor.setMentorId(userPrincipal.getId());
-        mentor.setFirstName(userPrincipal.getFirstName());
-        mentor.setLastName(userPrincipal.getLastName());
-        mentor.setEmail(userPrincipal.getEmail());
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin || mentorDTO.getMentorId() == null) {
+            // MENTOR role, or ADMIN without explicit identity fields in body → use JWT claims
+            mentor.setMentorId(userPrincipal.getId());
+            mentor.setFirstName(userPrincipal.getFirstName());
+            mentor.setLastName(userPrincipal.getLastName());
+            mentor.setEmail(userPrincipal.getEmail());
+        }
+        // else: ADMIN provided mentorId (+ firstName/lastName/email) in body → ModelMapper already mapped them
 
         Mentor createdMentor = mentorService.createNewMentor(mentor);
 
