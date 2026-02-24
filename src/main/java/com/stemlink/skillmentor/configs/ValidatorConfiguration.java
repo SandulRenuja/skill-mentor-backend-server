@@ -22,7 +22,7 @@ public class ValidatorConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "auth.validator.type", havingValue = "clerk", matchIfMissing = true)
-    public TokenValidator clerkTokenValidator(@Value("${clerk.jwks.url}") String clerkJwksUrl) {
+    public TokenValidator clerkTokenValidator(@Value("https://key-possum-71.clerk.accounts.dev/.well-known/jwks.json") String clerkJwksUrl) {
         log.info("Clerk validator configured as primary TokenValidator");
         return new ClerkValidator(clerkJwksUrl);
     }

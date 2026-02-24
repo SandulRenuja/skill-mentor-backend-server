@@ -19,7 +19,7 @@ public class ClerkValidator implements TokenValidator {
 
     private final JwkProvider jwkProvider;
 
-    public ClerkValidator(@Value("${clerk.jwks.url}") String clerkJwksUrl) {
+    public ClerkValidator(@Value("https://key-possum-71.clerk.accounts.dev/.well-known/jwks.json") String clerkJwksUrl) {
         try {
             this.jwkProvider = new UrlJwkProvider(new URL(clerkJwksUrl));
         } catch (Exception e) {

@@ -36,28 +36,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Apply CORS filter
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(skillMentorAuthenticationEntryPoint)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Explicitly permit OPTIONS requests for all paths
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/public/**",
                                 "/v3/api-docs/**",
-                                "/v3/api-docs.yaml",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/webjars/**",
-                                "/swagger-resources/**"
+                                "/swagger-ui.html"
                         ).permitAll()
-                        // Public read access to mentors from home page
+                        // Public read access to mentors
                         .requestMatchers(HttpMethod.GET, "/api/v1/mentors", "/api/v1/mentors/*").permitAll()
                         .anyRequest().authenticated()
                 )
-            .addFilterBefore(clerkAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .httpBasic(AbstractHttpConfigurer::disable);
+                .addFilterBefore(clerkAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
