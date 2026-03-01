@@ -72,7 +72,7 @@ public class SessionController extends AbstractController {
     }
 
 
-    //Get All Sessions For Admi
+    //Get All Sessions For Admin
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Session>> getAllSessionsForAdmin() {
