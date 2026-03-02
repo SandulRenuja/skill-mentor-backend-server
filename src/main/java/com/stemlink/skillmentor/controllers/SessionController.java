@@ -72,12 +72,7 @@ public class SessionController extends AbstractController {
     }
 
 
-    //Get All Sessions For Admin
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Session>> getAllSessionsForAdmin() {
-        return sendOkResponse(sessionService.getAllSessions());
-    }
+
 
     private SessionResponseDTO toSessionResponseDTO(Session session) {
         SessionResponseDTO dto = new SessionResponseDTO();
