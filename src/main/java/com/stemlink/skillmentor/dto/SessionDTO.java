@@ -1,24 +1,25 @@
 package com.stemlink.skillmentor.dto;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * DTO for session creation and updates.
+ * studentId, mentorId, subjectId are optional on PUT (admin partial updates).
+ * studentId is derived from JWT on the /enroll endpoint so it is not validated there.
+ */
 @Data
 public class SessionDTO {
 
-    @NotNull(message = "Student ID cannot be null")
+    // Optional on PUT (admin updating payment/session status only)
     private Integer studentId;
 
-    @NotNull(message = "Mentor ID cannot be null")
     private Long mentorId;
 
-    @NotNull(message = "Subject ID cannot be null")
     private Long subjectId;
 
-    @NotNull(message = "Session date/time cannot be null")
     private Date sessionAt;
 
     @Min(value = 1, message = "Duration must be at least 1 minute")
@@ -36,5 +37,4 @@ public class SessionDTO {
     private Integer studentRating;
 
     private String paymentStatus;
-
 }

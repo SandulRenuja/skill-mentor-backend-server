@@ -1,7 +1,7 @@
 package com.stemlink.skillmentor.controllers;
 
-
 import com.stemlink.skillmentor.dto.SessionDTO;
+import com.stemlink.skillmentor.dto.response.AdminSessionResponseDTO;
 import com.stemlink.skillmentor.dto.response.SessionResponseDTO;
 import com.stemlink.skillmentor.entities.Session;
 import com.stemlink.skillmentor.security.UserPrincipal;
@@ -26,33 +26,49 @@ public class SessionController extends AbstractController {
 
     private final SessionService sessionService;
 
+    // ─── Admin: all sessions ──────────────────────────────────────────────────
+
     @GetMapping
-    public List<Session> getAllSessions() {
-        return sessionService.getAllSessions();
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AdminSessionResponseDTO>> getAllSessions() {
+        List<Session> sessions = sessionService.getAllSessions();
+        List<AdminSessionResponseDTO> response = sessions.stream()
+                .map(this::toAdminSessionResponseDTO)
+                .collect(Collectors.toList());
+        return sendOkResponse(response);
     }
 
     @GetMapping("{id}")
-    public Session getSessionById(@PathVariable Long id) {
-        return sessionService.getSessionById(id);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Session> getSessionById(@PathVariable Long id) {
+        return sendOkResponse(sessionService.getSessionById(id));
     }
 
     @PostMapping
-    public Session createSession(@Valid @RequestBody SessionDTO sessionDTO) {
-        return sessionService.createNewSession(sessionDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Session> createSession(@Valid @RequestBody SessionDTO sessionDTO) {
+        return sendCreatedResponse(sessionService.createNewSession(sessionDTO));
     }
 
     @PutMapping("{id}")
-    public Session updateSession(@PathVariable Long id, @Valid @RequestBody SessionDTO updatedSessionDTO) {
-        return sessionService.updateSessionById(id, updatedSessionDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Session> updateSession(
+            @PathVariable Long id,
+            @Valid @RequestBody SessionDTO updatedSessionDTO) {
+        return sendOkResponse(sessionService.updateSessionById(id, updatedSessionDTO));
     }
 
     @DeleteMapping("{id}")
-    public void deleteSession(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteSession(@PathVariable Long id) {
         sessionService.deleteSession(id);
+        return sendNoContentResponse();
     }
 
-    // Enrollment endpoint for students to enroll in a session
+    // ─── Student: enroll ─────────────────────────────────────────────────────
+
     @PostMapping("/enroll")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     public ResponseEntity<SessionResponseDTO> enroll(
             @RequestBody SessionDTO sessionDTO,
             Authentication authentication) {
@@ -62,6 +78,7 @@ public class SessionController extends AbstractController {
     }
 
     @GetMapping("/my-sessions")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     public ResponseEntity<List<SessionResponseDTO>> getMySessions(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         List<Session> sessions = sessionService.getSessionsByStudentEmail(userPrincipal.getEmail());
@@ -71,8 +88,7 @@ public class SessionController extends AbstractController {
         return sendOkResponse(response);
     }
 
-
-
+    // ─── Mappers ─────────────────────────────────────────────────────────────
 
     private SessionResponseDTO toSessionResponseDTO(Session session) {
         SessionResponseDTO dto = new SessionResponseDTO();
@@ -80,6 +96,36 @@ public class SessionController extends AbstractController {
         dto.setMentorName(session.getMentor().getFirstName() + " " + session.getMentor().getLastName());
         dto.setMentorProfileImageUrl(session.getMentor().getProfileImageUrl());
         dto.setSubjectName(session.getSubject().getSubjectName());
+        dto.setSessionAt(session.getSessionAt());
+        dto.setDurationMinutes(session.getDurationMinutes());
+        dto.setSessionStatus(session.getSessionStatus());
+        dto.setPaymentStatus(session.getPaymentStatus());
+        dto.setMeetingLink(session.getMeetingLink());
+        return dto;
+    }
+
+    private AdminSessionResponseDTO toAdminSessionResponseDTO(Session session) {
+        AdminSessionResponseDTO dto = new AdminSessionResponseDTO();
+        dto.setId(session.getId());
+
+        // Student info
+        if (session.getStudent() != null) {
+            dto.setStudentName(session.getStudent().getFirstName()
+                    + " " + session.getStudent().getLastName());
+            dto.setStudentEmail(session.getStudent().getEmail());
+        }
+
+        // Mentor info
+        if (session.getMentor() != null) {
+            dto.setMentorName(session.getMentor().getFirstName()
+                    + " " + session.getMentor().getLastName());
+        }
+
+        // Subject info
+        if (session.getSubject() != null) {
+            dto.setSubjectName(session.getSubject().getSubjectName());
+        }
+
         dto.setSessionAt(session.getSessionAt());
         dto.setDurationMinutes(session.getDurationMinutes());
         dto.setSessionStatus(session.getSessionStatus());

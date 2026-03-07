@@ -1,6 +1,5 @@
 package com.stemlink.skillmentor.configs;
 
-//import com.stemlink.skillmentor.security.JwtAuthenticationFilter;
 import com.stemlink.skillmentor.security.AuthenticationFilter;
 import com.stemlink.skillmentor.security.SkillMentorAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -27,22 +26,20 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private final AuthenticationFilter clerkAuthenticationFilter;
-
     private final SkillMentorAuthenticationEntryPoint skillMentorAuthenticationEntryPoint;
     private final CorsConfigurationSource corsConfigurationSource;
-
-    //TODO: handle unauthorized error 403
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(skillMentorAuthenticationEntryPoint)
-                )
+                        .authenticationEntryPoint(skillMentorAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
+                        // Swagger / OpenAPI
                         .requestMatchers(
                                 "/api/public/**",
                                 "/v3/api-docs/**",
@@ -52,11 +49,48 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/swagger-resources/**"
                         ).permitAll()
-                        // Public read access to mentors from home page
-                        .requestMatchers(HttpMethod.GET, "/api/v1/mentors", "/api/v1/mentors/*").permitAll()
+
+                        // Public read access to mentors (home page)
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/mentors",
+                                "/api/v1/mentors/{id}"
+                        ).permitAll()
+
+                        // Admin-only: create/update/delete mentors
+                        .requestMatchers(HttpMethod.POST, "/api/v1/mentors")
+                        .hasAnyRole("ADMIN", "MENTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/mentors/{id}")
+                        .hasAnyRole("ADMIN", "MENTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/mentors/{id}")
+                        .hasRole("ADMIN")
+
+                        // Admin-only: full session management
+                        .requestMatchers(HttpMethod.GET, "/api/v1/sessions")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/sessions/{id}")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/sessions/{id}")
+                        .hasRole("ADMIN")
+
+                        // Admin-only: subject management
+                        .requestMatchers(HttpMethod.POST, "/api/v1/subjects")
+                        .hasAnyRole("ADMIN", "MENTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/subjects/{id}")
+                        .hasAnyRole("ADMIN", "MENTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/subjects/{id}")
+                        .hasRole("ADMIN")
+
+                        // Student + Admin: enroll and view own sessions
+                        .requestMatchers(HttpMethod.POST, "/api/v1/sessions/enroll")
+                        .hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/sessions/my-sessions")
+                        .hasAnyRole("STUDENT", "ADMIN")
+
+                        // Everything else requires auth
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(clerkAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(clerkAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable);
 
         return http.build();
