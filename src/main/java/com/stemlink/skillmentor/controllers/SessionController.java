@@ -1,5 +1,6 @@
 package com.stemlink.skillmentor.controllers;
 
+import com.stemlink.skillmentor.dto.ReviewDTO;
 import com.stemlink.skillmentor.dto.SessionDTO;
 import com.stemlink.skillmentor.dto.response.AdminSessionResponseDTO;
 import com.stemlink.skillmentor.dto.response.SessionResponseDTO;
@@ -86,6 +87,24 @@ public class SessionController extends AbstractController {
                 .map(this::toSessionResponseDTO)
                 .collect(Collectors.toList());
         return sendOkResponse(response);
+    }
+
+    // ─── Student: submit review on a completed session ───────────────────────
+
+    /**
+     * PATCH /api/v1/sessions/{id}/review
+     * Allows the owning student (or admin) to submit a rating + review text
+     * on a completed session.
+     */
+    @PatchMapping("{id}/review")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
+    public ResponseEntity<SessionResponseDTO> submitReview(
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewDTO reviewDTO,
+            Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Session session = sessionService.submitReview(id, reviewDTO, userPrincipal);
+        return sendOkResponse(toSessionResponseDTO(session));
     }
 
     // ─── Mappers ─────────────────────────────────────────────────────────────

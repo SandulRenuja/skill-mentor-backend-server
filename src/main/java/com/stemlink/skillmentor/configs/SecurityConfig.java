@@ -53,7 +53,8 @@ public class SecurityConfig {
                         // Public read access to mentors (home page)
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/mentors",
-                                "/api/v1/mentors/{id}"
+                                "/api/v1/mentors/{id}",
+                                "/api/v1/mentors/{id}/profile"//  profile endpoint
                         ).permitAll()
 
                         // Admin-only: create/update/delete mentors
@@ -85,6 +86,11 @@ public class SecurityConfig {
                         .hasAnyRole("STUDENT", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/sessions/my-sessions")
                         .hasAnyRole("STUDENT", "ADMIN")
+
+                        // Student + Admin: submit review on a session
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/sessions/{id}/review")
+                        .hasAnyRole("STUDENT", "ADMIN")
+
 
                         // Everything else requires auth
                         .anyRequest().authenticated()

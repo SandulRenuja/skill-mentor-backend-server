@@ -15,4 +15,7 @@ public class SessionResponseDTO {
     private String sessionStatus;
     private String paymentStatus;
     private String meetingLink;
+    // Review fields — null until student submits a review
+    private Integer studentRating;
+    private String studentReview;
 }

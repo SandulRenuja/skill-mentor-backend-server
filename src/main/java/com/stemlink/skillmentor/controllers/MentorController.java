@@ -1,6 +1,7 @@
 package com.stemlink.skillmentor.controllers;
 
 import com.stemlink.skillmentor.dto.MentorDTO;
+import com.stemlink.skillmentor.dto.response.MentorProfileResponseDTO;
 import com.stemlink.skillmentor.entities.Mentor;
 import com.stemlink.skillmentor.security.UserPrincipal;
 import com.stemlink.skillmentor.services.MentorService;
@@ -41,6 +42,16 @@ public class MentorController extends AbstractController {
     public ResponseEntity<Mentor> getMentorById(@PathVariable Long id) {
         Mentor mentor = mentorService.getMentorById(id);
         return sendOkResponse(mentor);
+    }
+
+    /**
+     * Rich profile endpoint — used by the frontend MentorProfilePage.
+     * Returns computed stats (avg rating, enrollment counts per subject, reviews).
+     * Public — no auth required.
+     */
+    @GetMapping("{id}/profile")
+    public ResponseEntity<MentorProfileResponseDTO> getMentorProfile(@PathVariable Long id) {
+        return sendOkResponse(mentorService.getMentorProfile(id));
     }
 
     @PostMapping
